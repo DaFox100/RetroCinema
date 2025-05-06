@@ -1,0 +1,6 @@
+com/movierental/DatabaseConnection.class
+com/movierental/RentServlet.class
+com/movierental/Movie.class
+com/movierental/ReturnServlet.class
+com/movierental/AccountServlet.class
+com/movierental/MoviesServlet.class

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Retro Cinema</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Orbitron', sans-serif;
+      background-color: #111;
+      color: #fff;
+    }
+
+    /* Neon Glow Helper Class */
+    .neon {
+      text-shadow:
+        0 0 5px #f0f,
+        0 0 10px #f0f,
+        0 0 20px #f0f,
+        0 0 40px #0ff,
+        0 0 80px #0ff;
+    }
+
+    /* Menu Bar */
+    .menu-bar {
+      background-color: #000;
+      padding: 15px 0;
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 2px solid #0ff;
+    }
+
+    .menu-bar a {
+      color: #0ff;
+      font-size: 1.1rem;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .menu-bar a:hover {
+      color: #f0f;
+      text-shadow: 0 0 5px #f0f, 0 0 10px #0ff;
+    }
+
+    /* Image Section */
+    .image-section {
+      text-align: center;
+      padding: 40px;
+    }
+
+    .image-section img {
+      max-width: 80%;
+      border: 4px solid #f0f;
+      box-shadow: 0 0 20px #f0f, 0 0 40px #0ff;
+    }
+
+    /* Table */
+    .Top-Ranked-Movies {
+      width: 90%;
+      margin: 40px auto;
+      border-collapse: collapse;
+      background-color: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 0 15px #0ff;
+    }
+
+    .Top-Ranked-Movies th,
+    .Top-Ranked-Movies td {
+      border: 1px solid #0ff;
+      padding: 20px;
+      text-align: center;
+      color: #fff;
+    }
+
+    .Top-Ranked-Movies th {
+      background-color: rgba(0, 255, 255, 0.1);
+      font-size: 1.2rem;
+      color: #0ff;
+      text-shadow: 0 0 5px #0ff;
+    }
+
+    .Top-Ranked-Movies tr:hover {
+      background-color: rgba(255, 0, 255, 0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Bar -->
+  <nav class="menu-bar neon">
+    <a href="#">Home</a>
+    <a href="#">Movies</a>
+    <a href="#">About</a>
+    <a href="#">Contact</a>
+  </nav>
+
+  <!-- Image Section -->
+  <div class="image-section">
+    <img src="https://miro.medium.com/v2/resize:fit:1400/1*IozM4X8HDsYqeL7uPcN8pg.jpeg" alt="Retro Theater">
+  </div>
+
+  <!-- Table -->
+  <table class="Top-Ranked-Movies">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Rating</th>
+      </tr>
+    </thead>
+    <tbody id="table-body">
+      <!-- Rows will be added via JavaScript -->
+    </tbody>
+  </table>
+
+  #movie-section
+
+  <!-- Movies Section (Initially Hidden) -->
+<div id="movie-section" style="display: none; padding: 40px; display: flex; justify-content: center; gap: 50px;">
+    <!-- Movie Table -->
+    <table class="Top-Ranked-Movies" style="flex: 1;">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Genre</th>
+        </tr>
+      </thead>
+      <tbody id="movies-table-body">
+        <!-- Rows will be populated by JavaScript -->
+      </tbody>
+    </table>
+  
+    <!-- Image + Rent Section -->
+    <div style="flex: 0.6; text-align: center;">
+      <img id="movie-poster" src="https://placehold.co/300x400?text=Select+Movie" alt="Movie Poster" style="width: 100%; border: 4px solid #f0f; box-shadow: 0 0 20px #f0f;">
+      <button style="margin-top: 20px; padding: 10px 30px; font-size: 1.1rem; background: #0ff; border: none; color: #000; cursor: pointer; box-shadow: 0 0 10px #0ff, 0 0 20px #f0f;">Rent</button>
+    </div>
+  </div>
+
+  <script>
+    const data = [
+      { id: 1, Title: 'SpaceBalls', Rating: '100' },
+      { id: 2, Title: 'The Princess Bride', Rating: '98' },
+      { id: 3, Title: 'Oppenheimer', Rating: '97' }
+    ];
+
+    const tableBody = document.getElementById('table-body');
+
+    data.forEach(item => {
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${item.id}</td><td>${item.Title}</td><td>${item.Rating}</td>`;
+      tableBody.appendChild(row);
+    });
+
+    // Sample movie data
+    const movies = [
+    { id: 1, title: 'Blade Runner', genre: 'Sci-Fi', poster: 'https://m.media-amazon.com/images/I/71cn8pGHd6L._AC_UF894,1000_QL80_.jpg' },
+    { id: 2, title: 'Back to the Future', genre: 'Adventure', poster: 'https://m.media-amazon.com/images/I/71KgOSSzS1L._AC_UF894,1000_QL80_.jpg' },
+    { id: 3, title: 'Tron', genre: 'Sci-Fi', poster: 'https://cdn.posteritati.com/posters/000/000/057/534/tron-md-web.jpg' },
+    {id: 4, title: 'Apocalypse Now', genre: 'Thriller', poster: 'https://www.posterist.net/cdn/shop/files/apocalypse-now-movie-poster-01.jpg?v=1698399703'}
+    ];
+
+    const moviesTable = document.getElementById('movies-table-body');
+    const movieSection = document.getElementById('movie-section');
+    const moviePoster = document.getElementById('movie-poster');
+
+    // Populate movie table
+    movies.forEach(movie => {
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${movie.id}</td><td>${movie.title}</td><td>${movie.genre}</td>`;
+    row.style.cursor = 'pointer';
+
+    // When row is clicked, show poster
+    row.addEventListener('click', () => {
+        moviePoster.src = movie.poster;
+    });
+
+    moviesTable.appendChild(row);
+    });
+
+    // Show movie section when clicking "Movies"
+    document.querySelector('.menu-bar a:nth-child(2)').addEventListener('click', (e) => {
+    e.preventDefault();
+    movieSection.style.display = 'flex';
+    window.scrollTo({ top: movieSection.offsetTop, behavior: 'smooth' });
+    });
+
+  </script>
+
+  
+  
+  
+
+</body>
+</html>

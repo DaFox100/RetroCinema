@@ -1,0 +1,290 @@
+<%@ page import="java.util.*, com.movierental.Movie, java.util.stream.*" %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Retro Cinema</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Orbitron', sans-serif;
+      background-color: #111;
+      color: #fff;
+    }
+    .neon {
+      text-shadow: 0 0 5px #f0f, 0 0 10px #f0f, 0 0 20px #f0f, 0 0 40px #0ff, 0 0 80px #0ff;
+    }
+    .menu-bar {
+      background-color: #000;
+      padding: 15px 0;
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 2px solid #0ff;
+    }
+    .menu-bar a {
+      color: #0ff;
+      font-size: 1.1rem;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    .menu-bar a:hover {
+      color: #f0f;
+      text-shadow: 0 0 5px #f0f, 0 0 10px #0ff;
+    }
+    .image-section {
+      text-align: center;
+      padding: 40px;
+    }
+    .image-section img {
+      max-width: 80%;
+      border: 4px solid #f0f;
+      box-shadow: 0 0 20px #f0f, 0 0 40px #0ff;
+    }
+    .Top-Ranked-Movies {
+      width: 90%;
+      margin: 40px auto;
+      border-collapse: collapse;
+      background-color: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 0 15px #0ff;
+    }
+    .Top-Ranked-Movies th,
+    .Top-Ranked-Movies td {
+      border: 1px solid #0ff;
+      padding: 20px;
+      text-align: center;
+      color: #fff;
+    }
+    .Top-Ranked-Movies th {
+      background-color: rgba(0, 255, 255, 0.1);
+      font-size: 1.2rem;
+      color: #0ff;
+      text-shadow: 0 0 5px #0ff;
+    }
+    .Top-Ranked-Movies tr:hover {
+      background-color: rgba(255, 0, 255, 0.1);
+    }
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      margin-top: 30px;
+      padding: 0 40px;
+    }
+    .movie-card {
+      background-color: #222;
+      border: 2px solid #0ff;
+      box-shadow: 0 0 15px #0ff;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    .movie-card img {
+      width: 100%;
+      max-height: 300px;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #f0f;
+    }
+    .movie-card h2 {
+      margin: 10px 0 5px;
+      color: #0ff;
+    }
+    .movie-card p {
+      margin: 5px 0;
+      font-size: 0.9rem;
+    }
+    .active {
+      color: #0ff;
+      text-shadow: 0 0 10px #0ff;
+    }
+
+    .load-button {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 30px;
+      font-size: 1.2rem;
+      background-color: #0ff;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Orbitron', sans-serif;
+      box-shadow: 0 0 10px #0ff, 0 0 20px #f0f;
+    }
+  </style>
+  <script>
+    function showPoster(url) {
+      const img = document.getElementById('movie-poster');
+      img.src = url || 'https://placehold.co/300x400?text=No+Image';
+    }
+
+    let selectedMovieId = null;
+
+function selectMovie(id, title) {
+    selectedMovieId = id;
+    document.getElementById("selectedMovieId").value = id;
+    document.getElementById("rentButton").style.display = "block";
+    document.getElementById("rentalPrompt").style.display = "none";
+    console.log(`Selected movie: ${title} (ID: ${id})`);
+}
+
+function showRentalPrompt() {
+    const selectedMovieId = document.getElementById("selectedMovieId").value;
+    if (!selectedMovieId) {
+      alert("Please select a movie before renting.");
+      return;
+    }
+    document.getElementById("rentalPrompt").style.display = "block";
+  }
+
+  </script>
+</head>
+<body>
+  <nav class="menu-bar neon">
+    <a href="movies" class="<%= request.getParameter("query") == null ? "active" : "" %>">Home</a>
+    <a href="#movie-library">Movies</a>
+    <a href="#search-section" id="search-link">Search</a>
+    <a href="account.jsp">Account</a>
+    <a href="#">About</a>
+    
+  </nav>
+
+  <%
+    List<Movie> movies = (List<Movie>) request.getAttribute("movies");
+    Movie topMovie = null;
+    try {
+      if (movies != null && !movies.isEmpty()) {
+        topMovie = movies.stream().max(Comparator.comparingDouble(Movie::getRating)).orElse(null);
+      }
+    } catch (Exception e) {
+      topMovie = null;
+    }
+  %>
+  <div class="image-section">
+    <img id="banner-image"
+         src="<%= (topMovie != null && topMovie.getUrl() != null && !topMovie.getUrl().isEmpty()) 
+                 ? topMovie.getUrl() 
+                 : "https://placehold.co/1000x400?text=Retro+Cinema" %>"
+         alt="Top Ranked Movie Poster">
+  </div>
+  <form action="movies" method="get" style="display: -moz-box; text-align: center; padding: 40px;">
+    <h2 class="neon">Search Movies</h2>
+    <input type="text" name="query" placeholder="Enter title or genre" value="<%= request.getParameter("query") != null ? request.getParameter("query") : "" %>" style="padding: 10px; width: 60%; font-size: 1rem; margin-top: 10px;">
+    <div id="search-results" style="margin-top: 30px;"></div>
+  </form>
+  
+
+  <%
+    if (movies != null && !movies.isEmpty()) {
+      List<Movie> sorted = new ArrayList<>(movies);
+      sorted.sort((a, b) -> Double.compare(b.getRating(), a.getRating()));
+  %>
+
+
+ <h2 class="neon" style="text-align: center; margin-top: 40px;">Top Rated Movies</h2>
+  <table class="Top-Ranked-Movies">
+    <thead>
+      <tr><th>ID</th><th>Title</th><th>Rating</th></tr>
+    </thead>
+    <tbody>
+      <% for (int i = 0; i < Math.min(5, sorted.size()); i++) {
+           Movie m = sorted.get(i); %>
+        <tr>
+          <td><%= m.getId() %></td>
+          <td><%= m.getTitle() %></td>
+          <td><%= m.getRating() %></td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+
+  
+  <div id="movie-library" style="padding: 40px; display: flex; justify-content: center; gap: 50px;">
+  <div style="flex: 1; max-height: 900px; overflow-y: auto;">
+    <table class="Top-Ranked-Movies">
+      <h2 class="neon" style="text-align: center; margin-top: 40px;">Movies</h2>
+      <thead>
+        <tr><th>ID</th><th>Title</th><th>Genre</th><th>Total Copies</th><th>Copies Rented</th></tr>
+      </thead>
+      <tbody>
+        <% for (Movie m : movies) { %>
+          <tr onclick="selectMovie('<%= m.getId() %>', '<%= m.getTitle() %>'),showPoster('<%= m.getUrl()%>')">
+            <td><%= m.getId() %></td>
+            <td><%= m.getTitle() %></td>
+            <td><%= m.getGenre() %></td>
+            <td><%= m.getTotalCopies() %></td>
+            <td><%= m.getCopiesRented() %></td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+  <div style="flex: 0.6; text-align: center;">
+  <img id="movie-poster" src="https://placehold.co/300x400?text=Select+Movie" alt="Movie Poster" style="width: 100%; border: 4px solid #f0f; box-shadow: 0 0 20px #f0f;">
+  <br><br>
+ 
+  <div id="rentButton" style="text-align: center; margin-top: 20px;">
+    <button onclick="showRentalPrompt()" 
+            style="padding: 12px 30px; font-size: 1.1rem; background: #0ff; border: none; color: #000; cursor: pointer;
+                   font-family: 'Orbitron', sans-serif;
+                   text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
+                   box-shadow: 0 0 10px #0ff, 0 0 20px #f0f; border-radius: 5px;">
+      Rent
+    </button>
+  </div>
+  
+  <div id="rentalPrompt" style="display: none; text-align: center; margin-top: 30px;">
+    <form action="RentServlet" method="POST" style="display: inline-block; background-color: #222; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px #0ff;">
+      <input type="hidden" name="movieId" id="selectedMovieId">
+  
+      <label for="customerId" style="display: block; margin-bottom: 10px; font-family: 'Orbitron', sans-serif; color: #fff;">
+        Enter Customer ID:
+      </label>
+  
+      <input type="number" name="customerId" required min="0"
+             style="padding: 10px; width: 200px; border: 1px solid #0ff; background-color: #111; color: #fff;
+                    font-family: 'Orbitron', sans-serif; border-radius: 4px; margin-bottom: 15px;">
+  
+      <br>
+  
+      <button type="submit"
+              style="padding: 10px 25px; font-size: 1rem; background: #0ff; border: none; color: #000; cursor: pointer;
+                     font-family: 'Orbitron', sans-serif;
+                     text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
+                     box-shadow: 0 0 10px #0ff, 0 0 20px #f0f; border-radius: 5px;">
+        Confirm Rental
+      </button>
+    </form>
+  </div>
+  
+</div>
+</div>  
+
+
+  <h2 class="neon" style="text-align: center; margin-top: 40px;">Movie Library</h2>
+  <div class="movie-grid">
+    <% for (Movie m : movies) { %>
+      <div class="movie-card">
+        <img src="<%= m.getUrl() %>" alt="Movie Poster">
+        <h2><%= m.getTitle() %></h2>
+        <p><strong>Genre:</strong> <%= m.getGenre() %></p>
+        <p><strong>Total Copies:</strong> <%= m.getTotalCopies() %></p>
+        <p><strong>Price:</strong> $<%= String.format("%.2f", m.getPrice()) %></p>
+        <p><strong>Rating:</strong> <%= String.format("%.1f", m.getRating()) %></p>
+      </div>
+    <% } %>
+  </div>
+  <% } %>
+
+
+<script>
+     
+</script>
+</body>
+</html>
