@@ -49,6 +49,14 @@
       padding: 40px 20px;
       text-align: center;
     }
+    .neon {
+  text-shadow:
+    0 0 5px #f0f,
+    0 0 10px #f0f,
+    0 0 20px #f0f,
+    0 0 40px #0ff,
+    0 0 80px #0ff;
+}
 
     form {
       margin-bottom: 30px;
@@ -105,86 +113,102 @@
 <div class="container">
   <h1 class="neon">Account Lookup</h1>
 
-  <form method="get">
+  <form action="account" method="get">
     <label for="customerId">Enter your Customer ID:</label><br/>
-    <input type="number" name="customerId" id="customerId" required />
+    <input type="number" placeholder="EX: 123" name="customerId" id="customerId" required />
     <button type="submit">View My Rentals</button>
   </form>
+ 
 
-<%
-  String customerIdParam = request.getParameter("customerId");
 
-  if (customerIdParam != null && !customerIdParam.isEmpty()) {
-      int customerId = Integer.parseInt(customerIdParam);
-      List<String[]> rentals = new ArrayList<>();
 
-      try {
-        Class.forName("org.postgresql.Driver");
-    } catch (Exception e) {
-        System.err.println(e.toString());
-    } 
-      try (Connection conn = com.movierental.DatabaseConnection.initializeDatabase()) {
-          String sql = "SELECT r.movie_id, m.title, r.rented_date " +
-                       "FROM rentals r JOIN movies m ON r.movie_id = m.movie_id " +
-                       "WHERE r.customer_id = ? ORDER BY r.rented_date DESC";
-          PreparedStatement stmt = conn.prepareStatement(sql);
-          stmt.setInt(1, customerId);
-          ResultSet rs = stmt.executeQuery();
+<% String error = (String) request.getAttribute("error");
+   if (error != null) { %>
+    <p style="color: red;"><%= error %></p>
+<% } else {
+   List<String[]> rentals = (List<String[]>) request.getAttribute("rentals");
+   Integer customerId = (Integer) request.getAttribute("customerId");
 
-          while (rs.next()) {
-              String[] row = {
-                  rs.getString("title"),
-                  String.valueOf(rs.getInt("movie_id")),
-                  String.valueOf(rs.getTimestamp("rented_date"))
-              };
-              rentals.add(row);
-          }
+   if (rentals != null && !rentals.isEmpty()) { %>
+    <h1>Customer <%= customerId %>'s Current Rentals</h1>
+    <table>
+        <tr>
+            <th>Title</th>
+            <th>Movie ID</th>
+            <th>Rented Date</th>
+        </tr>
+        <% for (String[] row : rentals) { %>
+        <tr>
+            <td><%= row[0] %></td>
+            <td><%= row[1] %></td>
+            <td><%= row[2] %></td>
+            <td>
+                <form method="post" action="ReturnServlet" style="margin: 0;"
+                    onsubmit="return showConfirmModal(this);">
+                    <input type="hidden" name="movieId" value="<%= row[1] %>" />
+                    <input type="hidden" name="customerId" value="<%= customerId %>" />
 
-          if (!rentals.isEmpty()) {
-%>
-            <h2 class="neon">Rentals for Customer ID: <%= customerId %></h2>
-            <table>
-              <tr>
-                <th>Movie Title</th>
-                <th>Movie ID</th>
-                <th>Rental Date</th>
-              </tr>
-              <% for (String[] row : rentals) { %>
-                <tr>
-                  <td><%= row[0] %></td>
-                  <td><%= row[1] %></td>
-                  <td><%= row[2] %></td>
-                  <td>
-                    <form method="post" action="ReturnServlet" 
-                         style="margin: 0;"
-                         onsubmit="return confirm('Are you sure you want to return this movie?');">
-                        <input type="hidden" name="movieId" value="<%= row[1] %>" />
-                        <input type="hidden" name="customerId" value="<%= customerId %>" />
-                         <button type="submit"
-                                     style="padding: 6px 12px; font-family: 'Orbitron'; background: #f00; color: #fff;
-                                      border: none; border-radius: 5px; cursor: pointer;
-                                    text-shadow: 0 0 5px #f00, 0 0 10px #f00;">
-                     Return
-                         </button>
-                    </form>
+                    <label for="rating" style="color:#fff; font-size: 0.9rem;">Rate (0-100):</label>
+                    <input type="number" name="rating" min="0" max="100" required
+                                 style="width: 60px; padding: 5px; margin-right: 10px;" />
 
-                  </td>
-                </tr>
-              <% } %>
-            </table>
-<%
-          } else {
-%>
-            <p>No rentals found for this customer ID.</p>
-<%
-          }
+                     <button type="submit"
+                                 style="padding: 6px 12px; font-family: 'Orbitron'; background: #f00; color: #fff;
+                                  border: none; border-radius: 5px; cursor: pointer;
+                                text-shadow: 0 0 5px #f00, 0 0 10px #f00;">
+                 Return
+                     </button>
+                </form>
 
-      } catch (SQLException e) {
-          out.println("<p>Error: " + e.getMessage() + "</p>");
-      }
-  }
-%>
+              </td>
+        </tr>
+        <% } %>
+    </table>
+<% } else if (customerId != null) { %>
+    <h2>No current rentals found for customer <%= customerId %>.</h2>
+<% } } %>
 
 </div>
+<!-- Custom Return Confirmation Modal -->
+<div id="confirmModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+     background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center; font-family:'Orbitron', sans-serif;">
+  <div style="background:#111; padding:30px; border:2px solid #0ff; border-radius:10px; text-align:center; box-shadow: 0 0 20px #0ff;">
+    <h2 class="neon">Confirm Return</h2>
+    <p style="color:#fff;">Are you sure you want to return this movie and submit your rating?</p>
+    <div style="margin-top: 20px;">
+      <button id="confirmYes" style="padding:10px 20px; background:#0ff; border:none; color:#000; font-weight:bold; margin-right:10px; cursor:pointer;">
+        Yes
+      </button>
+      <button id="confirmNo" style="padding:10px 20px; background:#f00; border:none; color:#fff; font-weight:bold; cursor:pointer;">
+        No
+      </button>
+    </div> 
+  </div>
+</div>
+
+
+  
+
+
+<script>
+    let pendingForm = null;
+  
+    function showConfirmModal(form) {
+      pendingForm = form;
+      document.getElementById('confirmModal').style.display = 'flex';
+      return false; // Prevent default submit
+    }
+  
+    document.getElementById('confirmYes').onclick = function() {
+      if (pendingForm) pendingForm.submit();
+      document.getElementById('confirmModal').style.display = 'none';
+    };
+  
+    document.getElementById('confirmNo').onclick = function() {
+      document.getElementById('confirmModal').style.display = 'none';
+      pendingForm = null;
+    };
+  </script>
+  
 </body>
 </html>

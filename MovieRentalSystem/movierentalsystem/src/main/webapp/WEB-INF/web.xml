@@ -23,13 +23,12 @@
 </servlet-mapping>
 
 <servlet>
-  <servlet-name>AccountServlet</servlet-name>
-  <servlet-class>com.movierental.AccountServlet</servlet-class>
+    <servlet-name>AccountServlet</servlet-name>
+    <servlet-class>com.movierental.AccountServlet</servlet-class>
 </servlet>
-
 <servlet-mapping>
-  <servlet-name>AccountServlet</servlet-name>
-  <url-pattern>/AccountServlet</url-pattern>
+    <servlet-name>AccountServlet</servlet-name>
+    <url-pattern>/account</url-pattern>
 </servlet-mapping>
 
 

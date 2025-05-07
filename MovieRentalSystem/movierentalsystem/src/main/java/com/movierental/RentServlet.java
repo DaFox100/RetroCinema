@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -16,7 +17,7 @@ public class RentServlet extends HttpServlet {
 
             int movieId = Integer.parseInt(request.getParameter("movieId"));
             int customerId = Integer.parseInt(request.getParameter("customerId"));
-                
+            Timestamp now = new Timestamp(System.currentTimeMillis());
 
         try (Connection conn = DatabaseConnection.initializeDatabase()) {
             String sql = "UPDATE movies SET copies_rented = copies_rented + 1 WHERE movie_id = ?";
@@ -24,10 +25,11 @@ public class RentServlet extends HttpServlet {
             stmt.setInt(1, movieId);
             int rows = stmt.executeUpdate();
 
-            String insertRental = "INSERT INTO rentals (movie_id, customer_id) VALUES (?, ?)";
-            PreparedStatement insertStmt = conn.prepareStatement(insertRental);
+            String insertRental = "INSERT INTO rentals (movie_id, customer_id, rented_date) VALUES (?, ?, ?)";
+            PreparedStatement insertStmt = conn.prepareStatement(insertRental); 
             insertStmt.setInt(1, movieId);
-            insertStmt.setInt(2, customerId);  // Now using setInt
+            insertStmt.setInt(2, customerId);  
+            insertStmt.setTimestamp(3, now);
             
             insertStmt.executeUpdate();
 

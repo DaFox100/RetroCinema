@@ -103,6 +103,19 @@
       color: #0ff;
       text-shadow: 0 0 10px #0ff;
     }
+    #searchBar {
+  transition: opacity 0.4s ease;
+  opacity: 0;
+  display: none;
+}
+
+#searchBar.show {
+  display: block;
+  opacity: 1;
+}
+
+
+
 
     .load-button {
       display: block;
@@ -143,17 +156,31 @@ function showRentalPrompt() {
     document.getElementById("rentalPrompt").style.display = "block";
   }
 
+  function toggleSearch() {
+  const bar = document.getElementById("searchBar");
+  if (bar.classList.contains("show")) {
+    bar.classList.remove("show");
+    setTimeout(() => bar.style.display = "none", 400);
+  } else {
+    bar.style.display = "block";
+    setTimeout(() => bar.classList.add("show"), 10);
+  }
+}
+
+
+
   </script>
 </head>
 <body>
   <nav class="menu-bar neon">
     <a href="movies" class="<%= request.getParameter("query") == null ? "active" : "" %>">Home</a>
     <a href="#movie-library">Movies</a>
-    <a href="#search-section" id="search-link">Search</a>
+    <a href="#" onclick="toggleSearch()" id="searchToggle">Search</a>
     <a href="account.jsp">Account</a>
     <a href="#">About</a>
     
   </nav>
+
 
   <%
     List<Movie> movies = (List<Movie>) request.getAttribute("movies");
@@ -166,6 +193,21 @@ function showRentalPrompt() {
       topMovie = null;
     }
   %>
+  <div id="searchBar" style="display: none; text-align: center; margin-top: 20px;">
+    <form action="movies" method="get">
+      <input type="text" name="query" placeholder="Search by title or genre..."
+             value="<%= request.getParameter("query") != null ? request.getParameter("query") : "" %>"
+             style="padding: 10px; width: 300px; font-family: 'Orbitron'; border-radius: 5px; border: 1px solid #0ff;
+                    background: #111; color: #fff; box-shadow: 0 0 10px #0ff;">
+      <button type="submit"
+              style="padding: 10px 25px; background: #0ff; color: #000; font-family: 'Orbitron'; font-weight: bold;
+                     border: none; border-radius: 5px; cursor: pointer; box-shadow: 0 0 10px #0ff, 0 0 20px #f0f;">
+        Go
+      </button>
+    </form>
+  </div>
+  
+
   <div class="image-section">
     <img id="banner-image"
          src="<%= (topMovie != null && topMovie.getUrl() != null && !topMovie.getUrl().isEmpty()) 
@@ -173,13 +215,6 @@ function showRentalPrompt() {
                  : "https://placehold.co/1000x400?text=Retro+Cinema" %>"
          alt="Top Ranked Movie Poster">
   </div>
-  <form action="movies" method="get" style="display: -moz-box; text-align: center; padding: 40px;">
-    <h2 class="neon">Search Movies</h2>
-    <input type="text" name="query" placeholder="Enter title or genre" value="<%= request.getParameter("query") != null ? request.getParameter("query") : "" %>" style="padding: 10px; width: 60%; font-size: 1rem; margin-top: 10px;">
-    <div id="search-results" style="margin-top: 30px;"></div>
-  </form>
-  
-
   <%
     if (movies != null && !movies.isEmpty()) {
       List<Movie> sorted = new ArrayList<>(movies);
