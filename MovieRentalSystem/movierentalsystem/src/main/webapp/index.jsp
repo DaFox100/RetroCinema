@@ -84,6 +84,9 @@
       border-radius: 10px;
       text-align: center;
     }
+    .movie-card:hover {
+    border-color: #f0f; /* color on hover */
+  }
     .movie-card img {
       width: 100%;
       max-height: 300px;
@@ -168,6 +171,14 @@ function showRentalPrompt() {
 }
 
 
+  function scrollToPoster() {
+    const libraryHeading = document.getElementById("movie-poster");
+    if (libraryHeading) {
+      libraryHeading.scrollIntoView({ behavior: "smooth" });
+    }
+  }
+
+
 
   </script>
 </head>
@@ -227,10 +238,10 @@ function showRentalPrompt() {
     <thead>
       <tr><th>ID</th><th>Title</th><th>Rating</th></tr>
     </thead>
-    <tbody>
+    <tbody >
       <% for (int i = 0; i < Math.min(5, sorted.size()); i++) {
            Movie m = sorted.get(i); %>
-        <tr>
+        <tr onclick="selectMovie('<%= m.getId() %>', '<%= m.getTitle() %>'),showPoster('<%= m.getUrl()%>'),scrollToPoster()">
           <td><%= m.getId() %></td>
           <td><%= m.getTitle() %></td>
           <td><%= m.getRating() %></td>
@@ -305,12 +316,11 @@ function showRentalPrompt() {
   <h2 class="neon" style="text-align: center; margin-top: 40px;">Movie Library</h2>
   <div class="movie-grid">
     <% for (Movie m : movies) { %>
-      <div class="movie-card">
+      <div class="movie-card" onclick="selectMovie('<%= m.getId() %>', '<%= m.getTitle() %>'),showPoster('<%= m.getUrl()%>'), scrollToPoster()">
         <img src="<%= m.getUrl() %>" alt="Movie Poster">
         <h2><%= m.getTitle() %></h2>
         <p><strong>Genre:</strong> <%= m.getGenre() %></p>
         <p><strong>Total Copies:</strong> <%= m.getTotalCopies() %></p>
-        <p><strong>Price:</strong> $<%= String.format("%.2f", m.getPrice()) %></p>
         <p><strong>Rating:</strong> <%= String.format("%.1f", m.getRating()) %></p>
       </div>
     <% } %>

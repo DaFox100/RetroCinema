@@ -116,7 +116,10 @@
   <form action="account" method="get">
     <label for="customerId">Enter your Customer ID:</label><br/>
     <input type="number" placeholder="EX: 123" name="customerId" id="customerId" required />
-    <button type="submit">View My Rentals</button>
+    <button type="submit" style="padding: 12px 30px; font-size: 1.1rem; background: #0ff; border: none; color: #000; cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
+    box-shadow: 0 0 10px #0ff, 0 0 20px #f0f; border-radius: 5px;">View My Rentals</button>
   </form>
  
 
