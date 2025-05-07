@@ -3,6 +3,7 @@ package com.movierental;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
@@ -51,14 +52,35 @@ public class ReturnServlet extends HttpServlet {
             returnDateStmt.close();
 
             // Step 3: Insert rating
-            PreparedStatement ratingStmt = conn.prepareStatement(
-                "INSERT INTO ratings (customer_id, movie_id, rating) VALUES (?, ?, ?)"
-            );
-            ratingStmt.setInt(1, customerId);
-            ratingStmt.setInt(2, movieId);
-            ratingStmt.setInt(3, rating);
-            ratingStmt.executeUpdate();
-            ratingStmt.close();
+          String checkSql = "SELECT 1 FROM ratings WHERE customer_id = ? AND movie_id = ?";
+            PreparedStatement checkStmt = conn.prepareStatement(checkSql);
+            checkStmt.setInt(1, customerId);
+            checkStmt.setInt(2, movieId);
+            ResultSet rs = checkStmt.executeQuery();
+
+            if (rs.next()) {
+                // Rating exists – update it
+                String updateSql = "UPDATE ratings SET rating = ? WHERE customer_id = ? AND movie_id = ?";
+                try (PreparedStatement updateRatingStmt = conn.prepareStatement(updateSql)) {
+                    updateRatingStmt.setInt(1, rating);
+                    updateRatingStmt.setInt(2, customerId);
+                    updateRatingStmt.setInt(3, movieId);
+                    updateRatingStmt.executeUpdate();
+                }
+            } else {
+                // Insert new rating
+                String insertSql = "INSERT INTO ratings (customer_id, movie_id, rating) VALUES (?, ?, ?)";
+                PreparedStatement insertStmt = conn.prepareStatement(insertSql);
+                insertStmt.setInt(1, customerId);
+                insertStmt.setInt(2, movieId);
+                insertStmt.setInt(3, rating);
+                insertStmt.executeUpdate();
+                insertStmt.close();
+            }
+
+            rs.close();
+            checkStmt.close();
+
 
             conn.commit();
             response.sendRedirect("account?customerId=" + customerId); // forward correctly to servlet
