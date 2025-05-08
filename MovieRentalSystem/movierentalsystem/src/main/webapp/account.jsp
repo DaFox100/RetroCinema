@@ -1,3 +1,4 @@
+
 <%@ page import="java.util.*, java.sql.*" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
@@ -108,6 +109,7 @@
 <div class="menu-bar">
   <a href="movies">Home</a>
   <a href="account.jsp" class="active">Account</a>
+  <a href="about.jsp" class="active">about</a>
 </div>
 
 <div class="container">
@@ -122,25 +124,52 @@
     box-shadow: 0 0 10px #0ff, 0 0 20px #f0f; border-radius: 5px;">View My Rentals</button>
   </form>
  
-
-
-
 <% String error = (String) request.getAttribute("error");
-   if (error != null) { %>
+   if (error != null) { 
+    %>
     <p style="color: red;"><%= error %></p>
-<% } else {
+    %>
+<% 
+} else {
    List<String[]> rentals = (List<String[]>) request.getAttribute("rentals");
+   List<String[]> pastRentals = (List<String[]>) request.getAttribute("pastRentals");
    Integer customerId = (Integer) request.getAttribute("customerId");
+   if (customerId != null) {
+%>
+    <h1>Welcome, <%= request.getAttribute("firstName") %> <%= request.getAttribute("lastName") %></h1>
+    <br>
+    <br>
+    <h2></h2>
+    <h2>Your account information</h2>
+    <table>
+      <tr>
+        <th>Customer ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Address</th>
+      </tr>
+      <tr>
+        <td><%= request.getAttribute("customerId") %></td>
+        <td><%= request.getAttribute("firstName") %><%= request.getAttribute("lastName") %></td>
+        <td><%= request.getAttribute("email") %></td>
+        <td><%= request.getAttribute("address") %></td>
+      </tr>
+    </table>
 
-   if (rentals != null && !rentals.isEmpty()) { %>
-    <h1>Customer <%= customerId %>'s Current Rentals</h1>
+    <br>
+    <br>
+    <h2>Your current rental</h2>
     <table>
         <tr>
-            <th>Title</th>
-            <th>Movie ID</th>
-            <th>Rented Date</th>
+          <th>Title</th>
+          <th>Movie ID</th>  
+          <th>Rented Date</th>
+          <th>Rate/Return</th>
         </tr>
-        <% for (String[] row : rentals) { %>
+        <% 
+          if (rentals != null && !rentals.isEmpty()) {
+          for (String[] row : rentals) { 
+        %>
         <tr>
             <td><%= row[0] %></td>
             <td><%= row[1] %></td>
@@ -165,11 +194,58 @@
 
               </td>
         </tr>
-        <% } %>
+        <% 
+      } 
+    }
+    else {
+      %>
+        <tr>
+          <td colspan="4">No current rentals found.</td>
+        </tr>
+      <% }
+      %>
     </table>
-<% } else if (customerId != null) { %>
-    <h2>No current rentals found for customer <%= customerId %>.</h2>
-<% } } %>
+
+<br>
+<br>
+<h2>Your rental history</h2>
+<table>
+  <tr>
+    <th>Movie ID</th>
+    <th>Title</th>
+    <th>Rented Date</th>
+    <th>Returned Date</th>
+  </tr>
+
+  <% 
+    if (pastRentals != null && !pastRentals.isEmpty()) {
+      for (String[] row : pastRentals) { 
+  %>
+    <tr>
+      <td><%= row[0] %></td>
+      <td><%= row[1] %></td>
+      <td><%= row[2] %></td>
+      <td><%= row[3] %></td>
+    </tr>
+  <% 
+      }
+    } else {
+  %>
+    <tr>
+      <td colspan="4">No past rentals found.</td>
+    </tr>
+  <% } %>
+</table>
+
+
+<%
+  }else{
+    %>
+    <h2>No customer account is selected.</h2>
+    <%
+  }
+}
+%>
 
 </div>
 <!-- Custom Return Confirmation Modal -->
@@ -188,10 +264,6 @@
     </div> 
   </div>
 </div>
-
-
-  
-
 
 <script>
     let pendingForm = null;

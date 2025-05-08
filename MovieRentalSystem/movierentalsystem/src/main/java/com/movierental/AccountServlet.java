@@ -29,17 +29,33 @@ public class AccountServlet extends HttpServlet {
             try {
                 int customerId = Integer.parseInt(customerIdParam);
                 List<String[]> rentals = new ArrayList<>();
+                List<String[]> pastRentals = new ArrayList<>();
         
                 try (Connection conn = DatabaseConnection.initializeDatabase()) {
-                    // No need to load the driver twice, it's likely already loaded in DatabaseConnection
-                    // and if needed, should be in the servlet init() method
+                    //Get Customer information
+                    String customerSql = "SELECT first_name, last_name, email, address FROM customers WHERE customer_id = ?";
+                    PreparedStatement custStmt = conn.prepareStatement(customerSql);
+                    custStmt.setInt(1, customerId);
+                    ResultSet custRs = custStmt.executeQuery();
+
+                    if (!custRs.next()) {
+                        response.getWriter().println("No customer found.");
+                    return;
+                    }
+
+                    // Save customer info to request
+                    request.setAttribute("firstName", custRs.getString("first_name"));
+                    request.setAttribute("lastName", custRs.getString("last_name"));
+                    request.setAttribute("email", custRs.getString("email"));
+                    request.setAttribute("address", custRs.getString("address"));
                     
-                    String sql = "SELECT m.title, r.movie_id, r.rented_date " +
+                    //Get current rentals
+                    String currentSql = "SELECT m.title, r.movie_id, r.rented_date " +
                                  "FROM rentals r JOIN movies m ON r.movie_id = m.movie_id " +
                                  "WHERE r.customer_id = ? AND r.returned_date IS NULL " +
                                  "ORDER BY r.rented_date DESC";
         
-                    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    try (PreparedStatement stmt = conn.prepareStatement(currentSql)) {
                         stmt.setInt(1, customerId);
                         
                         try (ResultSet rs = stmt.executeQuery()) {
@@ -53,9 +69,33 @@ public class AccountServlet extends HttpServlet {
                             }
                         }
                     }
+
+
+                        //Get past rentals
+                        String pastSql = "SELECT r.movie_id, m.title, r.rented_date, r.returned_date " +
+                        "FROM rentals r JOIN movies m ON r.movie_id = m.movie_id " +
+                        "WHERE r.customer_id = ? AND r.returned_date IS NOT NULL " +
+                        "ORDER BY r.rented_date DESC";
+            
+                        try (PreparedStatement stmt = conn.prepareStatement(pastSql)) {
+                            stmt.setInt(1, customerId);
+                            
+                            try (ResultSet rs = stmt.executeQuery()) {
+                                while (rs.next()) {
+                                    String[] row = {
+                                        String.valueOf(rs.getInt("movie_id")),
+                                        rs.getString("title"),
+                                        String.valueOf(rs.getTimestamp("rented_date")),
+                                        String.valueOf(rs.getTimestamp("returned_date"))
+                                    };
+                                    pastRentals.add(row);
+                                }
+                            }
+                        }
         
                     request.setAttribute("rentals", rentals);
                     request.setAttribute("customerId", customerId);
+                    request.setAttribute("pastRentals", pastRentals);
                     
                 } catch (SQLException e) {
                     e.printStackTrace();

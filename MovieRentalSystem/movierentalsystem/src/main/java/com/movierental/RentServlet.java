@@ -3,6 +3,7 @@ package com.movierental;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
@@ -20,6 +21,31 @@ public class RentServlet extends HttpServlet {
             Timestamp now = new Timestamp(System.currentTimeMillis());
 
         try (Connection conn = DatabaseConnection.initializeDatabase()) {
+
+
+             // Check if the movie is in stock
+            String checkSql = "SELECT total_copies, copies_rented FROM movies WHERE movie_id = ?";
+            PreparedStatement checkStmt = conn.prepareStatement(checkSql);
+            checkStmt.setInt(1, movieId);
+            ResultSet rs = checkStmt.executeQuery();
+
+        if (rs.next()) {
+            int totalCopies = rs.getInt("total_copies");
+            int rentedCopies = rs.getInt("copies_rented");
+
+            if (rentedCopies >= totalCopies) {
+                response.sendRedirect("index.jsp?error=outofstock");
+               
+                
+                return;
+            }
+        } else {
+            response.getWriter().println("Error: Movie not found.");
+            return;
+        }
+
+
+
             String sql = "UPDATE movies SET copies_rented = copies_rented + 1 WHERE movie_id = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, movieId);

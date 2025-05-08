@@ -133,6 +133,52 @@
       font-family: 'Orbitron', sans-serif;
       box-shadow: 0 0 10px #0ff, 0 0 20px #f0f;
     }
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup-box {
+  background-color: #222;
+  border: 2px solid #f0f;
+  padding: 30px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 15px #0ff, 0 0 30px #f0f;
+}
+
+.neon-border {
+  color: #fff;
+  text-shadow: 0 0 5px #f0f, 0 0 10px #f0f, 0 0 20px #0ff, 0 0 40px #0ff;
+}
+
+.close-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 16px;
+  background-color: #000;
+  color: #0ff;
+  border: 2px solid #0ff;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 0 10px #0ff;
+}
+
+.close-btn:hover {
+  background-color: #0ff;
+  color: #000;
+}
+
   </style>
   <script>
     function showPoster(url) {
@@ -179,7 +225,6 @@ function showRentalPrompt() {
   }
 
 
-
   </script>
 </head>
 <body>
@@ -188,11 +233,21 @@ function showRentalPrompt() {
     <a href="#movie-library">Movies</a>
     <a href="#" onclick="toggleSearch()" id="searchToggle">Search</a>
     <a href="account.jsp">Account</a>
-    <a href="#">About</a>
+    <a href="about.jsp">About</a>
     
   </nav>
 
-
+  <% String error = request.getParameter("error"); %>
+  <% if ("outofstock".equals(error)) { %>
+    <div id="popup" class="popup-overlay">
+      <div class="popup-box neon-border">
+        <h2 class="neon">Out of Stock</h2>
+        <p>Sorry, this movie is currently out of stock!</p>
+        <button onclick="document.getElementById('popup').style.display='none'" class="close-btn">Close</button>
+      </div>
+    </div>
+  <% } %>
+  
   <%
     List<Movie> movies = (List<Movie>) request.getAttribute("movies");
     Movie topMovie = null;
@@ -218,7 +273,8 @@ function showRentalPrompt() {
     </form>
   </div>
   
-
+  <h2 class="neon" style="text-align: center; margin-top: 40px;">All Movies Rent Free!!!</h2>
+  <h3 class="neon" style="text-align: center; margin-top: 40px;">You're Welcome!</h3>
   <div class="image-section">
     <img id="banner-image"
          src="<%= (topMovie != null && topMovie.getUrl() != null && !topMovie.getUrl().isEmpty()) 
