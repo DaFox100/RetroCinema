@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class AccountServlet extends HttpServlet {
 
         String customerIdParam = request.getParameter("customerId");
         String isNew = request.getParameter("new");
+        Timestamp defaultUnreturnedDate = Timestamp.valueOf("1000-01-01 00:00:00.0");
 
         if (customerIdParam != null && !customerIdParam.isEmpty()) {
             try {
@@ -53,10 +55,11 @@ public class AccountServlet extends HttpServlet {
                     // Get current rentals
                     String currentSql = "SELECT m.title, r.movie_id, r.rented_date " +
                             "FROM rentals r JOIN movies m ON r.movie_id = m.movie_id " +
-                            "WHERE r.customer_id = ? AND r.returned_date IS NULL ORDER BY r.rented_date DESC";
+                            "WHERE r.customer_id = ? AND r.returned_date = ? ORDER BY r.rented_date DESC";
 
                     try (PreparedStatement stmt = conn.prepareStatement(currentSql)) {
                         stmt.setInt(1, customerId);
+                        stmt.setTimestamp(2, defaultUnreturnedDate);
                         ResultSet rs = stmt.executeQuery();
                         while (rs.next()) {
                             rentals.add(new String[]{
@@ -70,10 +73,11 @@ public class AccountServlet extends HttpServlet {
                     // Get past rentals
                     String pastSql = "SELECT r.movie_id, m.title, r.rented_date, r.returned_date " +
                             "FROM rentals r JOIN movies m ON r.movie_id = m.movie_id " +
-                            "WHERE r.customer_id = ? AND r.returned_date IS NOT NULL ORDER BY r.rented_date DESC";
+                            "WHERE r.customer_id = ? AND r.returned_date <> ? ORDER BY r.rented_date DESC";
 
                     try (PreparedStatement stmt = conn.prepareStatement(pastSql)) {
                         stmt.setInt(1, customerId);
+                        stmt.setTimestamp(2, defaultUnreturnedDate);
                         ResultSet rs = stmt.executeQuery();
                         while (rs.next()) {
                             pastRentals.add(new String[]{

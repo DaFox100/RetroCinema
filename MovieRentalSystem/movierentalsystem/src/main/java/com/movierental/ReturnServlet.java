@@ -26,6 +26,8 @@ public class ReturnServlet extends HttpServlet {
         int customerId = Integer.parseInt(request.getParameter("customerId"));
         int rating = Integer.parseInt(request.getParameter("rating"));
         Timestamp now = new Timestamp(System.currentTimeMillis());
+        Timestamp defaultUnreturnedDate = Timestamp.valueOf("1000-01-01 00:00:00.0");
+
 
         try (Connection conn = DatabaseConnection.initializeDatabase()) {
             conn.setAutoCommit(false);
@@ -44,15 +46,24 @@ public class ReturnServlet extends HttpServlet {
                 updateStmt.executeUpdate();
 
                 // Step 2: Mark rental as returned
-                returnStmt = conn.prepareStatement(
-                    "UPDATE rentals SET returned_date = ? " +
-                    "WHERE ctid = (" +
-                    "  SELECT ctid FROM rentals " +
-                    "  WHERE movie_id = ? AND customer_id = ? AND returned_date IS NULL LIMIT 1)");
-                returnStmt.setTimestamp(1, now);
-                returnStmt.setInt(2, movieId);
-                returnStmt.setInt(3, customerId);
-                returnStmt.executeUpdate();
+                String returnSql =
+                "WITH target AS (" +
+                "  SELECT movie_id, customer_id, rented_date FROM rentals " +
+                "  WHERE movie_id = ? AND customer_id = ? AND returned_date = ? " +
+                "  ORDER BY rented_date DESC LIMIT 1" +
+                ") " +
+                "UPDATE rentals SET returned_date = ? FROM target " +
+                "WHERE rentals.movie_id = target.movie_id AND rentals.customer_id = target.customer_id " +
+                "AND rentals.rented_date = target.rented_date";
+
+            returnStmt = conn.prepareStatement(returnSql);
+            returnStmt.setInt(1, movieId);
+            returnStmt.setInt(2, customerId);
+            returnStmt.setTimestamp(3, defaultUnreturnedDate);
+            returnStmt.setTimestamp(4, now);  // this is the new returned_date
+            returnStmt.executeUpdate();
+
+                
 
                 // Step 3: Handle rating insert/update
                 checkRatingStmt = conn.prepareStatement("SELECT 1 FROM ratings WHERE customer_id = ? AND movie_id = ?");
