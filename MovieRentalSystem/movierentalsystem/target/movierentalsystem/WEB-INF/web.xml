@@ -51,6 +51,15 @@
     <url-pattern>/removeHistory</url-pattern>
 </servlet-mapping>
 
+<servlet>
+    <servlet-name>CreateAccountServlet</servlet-name>
+    <servlet-class>com.movierental.CreateAccountServlet</servlet-class>
+</servlet>
+
+<servlet-mapping>
+    <servlet-name>CreateAccountServlet</servlet-name>
+    <url-pattern>/CreateAccountServlet</url-pattern>
+</servlet-mapping>
 
 
    <!-- Default welcome file -->

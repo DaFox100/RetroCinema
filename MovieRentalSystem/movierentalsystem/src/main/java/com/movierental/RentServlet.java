@@ -22,6 +22,20 @@ public class RentServlet extends HttpServlet {
 
         try (Connection conn = DatabaseConnection.initializeDatabase()) {
 
+            //Check for valid Customer ID
+            String checkCustomerSql = "SELECT 1 FROM customers WHERE customer_id = ?";
+            try (PreparedStatement custStmt = conn.prepareStatement(checkCustomerSql)) {
+                custStmt.setInt(1, customerId);
+                try (ResultSet custRs = custStmt.executeQuery()) {
+                    if (!custRs.next()) {
+                        response.sendRedirect("account.jsp?error=invalid_customer");
+                        return;
+                    }
+                    
+                }
+            }
+        
+
 
              // Check if the movie is in stock
             String checkSql = "SELECT total_copies, copies_rented FROM movies WHERE movie_id = ?";

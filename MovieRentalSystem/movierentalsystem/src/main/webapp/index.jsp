@@ -250,6 +250,14 @@ function showRentalPrompt() {
     </div>
   <% } %>
   
+  <% if ("invalid_customer".equals(request.getParameter("error"))) { %>
+    <div style="background:#111; border:2px solid #f00; color:#fff; padding:15px; margin:20px auto; width:80%; text-align:center; font-family:'Orbitron', sans-serif;">
+      <p style="color:#f00; font-weight:bold;">Invalid Customer ID</p>
+      <p>It looks like you don't have an account. Would you like to <a href="createAccount.jsp" style="color:#0ff; text-decoration:underline;">create one now</a>?</p>
+    </div>
+  <% } %>
+  
+
   <%
     List<Movie> movies = (List<Movie>) request.getAttribute("movies");
     Movie topMovie = null;

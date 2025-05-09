@@ -4,4 +4,5 @@ com/movierental/RemoveHistoryServlet.class
 com/movierental/DatabaseConnection.class
 com/movierental/RentServlet.class
 com/movierental/AccountServlet.class
+com/movierental/CreateAccountServlet.class
 com/movierental/MoviesServlet.class

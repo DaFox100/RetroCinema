@@ -121,6 +121,17 @@
   box-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff;
 }
 
+@keyframes neon-glow {
+  0%   { box-shadow: 0 0 5px #0f0; }
+  50%  { box-shadow: 0 0 20px #0f0, 0 0 30px #0f0; }
+  100% { box-shadow: 0 0 5px #0f0; }
+}
+
+.glow-flash {
+  animation: neon-glow 2s ease-in-out 2;
+}
+
+
   </style>
 </head>
 <body>
@@ -130,6 +141,11 @@
   <a href="account.jsp" class="active">Account</a>
   <a href="about.jsp" class="active">about</a>
 </div>
+
+
+
+
+
 
 <div class="container">
   <h1 class="neon">Account Lookup</h1>
@@ -142,7 +158,29 @@
     text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
     box-shadow: 0 0 10px #0ff, 0 0 20px #f0f; border-radius: 5px;">View My Rentals</button>
   </form>
- 
+
+  <% if ("invalid_customer".equals(request.getParameter("error"))) { %>
+    <div style="background:#111; border:2px solid #f00; color:#fff; padding:15px; margin:20px auto; width:80%; text-align:center; font-family:'Orbitron', sans-serif;">
+      <p style="color:#f00; font-weight:bold;">Invalid Customer ID</p>
+      <p>It looks like you don't have an account. Would you like to <a href="createAccount.jsp" style="color:#0ff; text-decoration:underline;">create one now</a>?</p>
+    </div>
+  <% } %>
+
+  <%
+    String newCustomer = request.getParameter("new");
+    String newCustomerId = request.getParameter("customerId");
+    if ("true".equals(newCustomer) && newCustomerId != null) {
+%>
+    <div id="newCustomerMessage" style="background:#111; border:2px solid #0f0; color:#0f0; padding:15px; margin:20px auto; width:80%; text-align:center; font-family:'Orbitron', sans-serif;">
+        <p style="font-weight:bold;">Account Created Successfully!</p>
+        <p>Your Customer ID is: <span style="color:#0ff;"><%= newCustomerId %></span></p>
+        <p>Please use this ID to rent movies in the future.</p>
+    </div>
+<%
+    }
+%>
+
+
 <% String error = (String) request.getAttribute("error");
    if (error != null) { 
     %>
@@ -255,10 +293,13 @@
     </tr>
   <% } %>
 </table>
-<form id="removeHistoryForm" action="removeHistory" method="POST" onsubmit="return showConfirmModal(this, 'Are you sure you want to delete your rental history? This action cannot be undone.');">
+<form id="removeHistoryForm" action="removeHistory" method="POST"
+      style="margin-top: 30px;"
+      onsubmit="return showConfirmModal(this, 'Are you sure you want to delete your rental history? This action cannot be undone.');">
   <input type="hidden" name="customerId" value="<%= request.getAttribute("customerId") %>">
   <button type="submit" class="neon-button">Remove Rental History</button>
 </form>
+
 
 
 
@@ -312,6 +353,14 @@
         pendingForm = null;
       };
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+  const msg = document.getElementById("newCustomerMessage");
+  if (msg) {
+    msg.scrollIntoView({ behavior: "smooth", block: "center" });
+    msg.classList.add("glow-flash");
+  }
+});
 
   </script>
   
