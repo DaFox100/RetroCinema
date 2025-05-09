@@ -235,7 +235,8 @@ function showRentalPrompt() {
     <a href="#movie-library">Movies</a>
     <a href="#" onclick="toggleSearch()" id="searchToggle">Search</a>
     <a href="account.jsp">Account</a>
-    <a href="about.jsp">About</a>
+    <a href="createAccount.jsp">Create Account</a>
+    <a href="about.jsp">About Us</a>
     
   </nav>
 
@@ -247,13 +248,6 @@ function showRentalPrompt() {
         <p>Sorry, this movie is currently out of stock!</p>
         <button onclick="document.getElementById('popup').style.display='none'" class="close-btn">Close</button>
       </div>
-    </div>
-  <% } %>
-  
-  <% if ("invalid_customer".equals(request.getParameter("error"))) { %>
-    <div style="background:#111; border:2px solid #f00; color:#fff; padding:15px; margin:20px auto; width:80%; text-align:center; font-family:'Orbitron', sans-serif;">
-      <p style="color:#f00; font-weight:bold;">Invalid Customer ID</p>
-      <p>It looks like you don't have an account. Would you like to <a href="createAccount.jsp" style="color:#0ff; text-decoration:underline;">create one now</a>?</p>
     </div>
   <% } %>
   
