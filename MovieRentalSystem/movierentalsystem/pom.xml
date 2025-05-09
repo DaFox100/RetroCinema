@@ -29,6 +29,13 @@
         <artifactId>postgresql</artifactId>
         <version>42.5.0</version>
     </dependency>
+    <!-- This is for escape characters-->
+    <dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-text</artifactId>
+    <version>1.10.0</version>
+</dependency>
+
 </dependencies>
 <build>
   <finalName>movierentalsystem</finalName>

@@ -1,4 +1,6 @@
 <%@ page import="java.util.*, com.movierental.Movie, java.util.stream.*" %>
+<%@ page import="org.apache.commons.lang3.StringEscapeUtils" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -297,7 +299,7 @@ function showRentalPrompt() {
     <tbody >
       <% for (int i = 0; i < Math.min(5, sorted.size()); i++) {
            Movie m = sorted.get(i); %>
-        <tr onclick="selectMovie('<%= m.getId() %>', '<%= m.getTitle() %>'),showPoster('<%= m.getUrl()%>'),scrollToPoster()">
+        <tr onclick="selectMovie('<%= m.getId() %>', '<%= StringEscapeUtils.escapeEcmaScript(m.getTitle()) %>'),showPoster('<%= m.getUrl()%>'),scrollToPoster()">
           <td><%= m.getId() %></td>
           <td><%= m.getTitle() %></td>
           <td><%= m.getRating() %></td>
@@ -316,7 +318,7 @@ function showRentalPrompt() {
       </thead>
       <tbody>
         <% for (Movie m : movies) { %>
-          <tr onclick="selectMovie('<%= m.getId() %>', '<%= m.getTitle() %>'),showPoster('<%= m.getUrl()%>')">
+          <tr onclick="selectMovie('<%= m.getId() %>', '<%= StringEscapeUtils.escapeEcmaScript(m.getTitle()) %>'),showPoster('<%= m.getUrl()%>')">
             <td><%= m.getId() %></td>
             <td><%= m.getTitle() %></td>
             <td><%= m.getGenre() %></td>
@@ -372,7 +374,7 @@ function showRentalPrompt() {
   <h2 class="neon" style="text-align: center; margin-top: 40px;">Movie Library</h2>
   <div class="movie-grid">
     <% for (Movie m : movies) { %>
-      <div class="movie-card" onclick="selectMovie('<%= m.getId() %>', '<%= m.getTitle() %>'),showPoster('<%= m.getUrl()%>'), scrollToPoster()">
+      <div class="movie-card" onclick="selectMovie('<%= m.getId() %>', '<%= StringEscapeUtils.escapeEcmaScript(m.getTitle()) %>'),showPoster('<%= m.getUrl()%>'), scrollToPoster()">
         <img src="<%= m.getUrl() %>" alt="Movie Poster">
         <h2><%= m.getTitle() %></h2>
         <p><strong>Genre:</strong> <%= m.getGenre() %></p>

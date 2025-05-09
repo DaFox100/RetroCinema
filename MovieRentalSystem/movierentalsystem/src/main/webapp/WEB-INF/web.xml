@@ -41,6 +41,16 @@
   <url-pattern>/ReturnServlet</url-pattern>
 </servlet-mapping>
 
+<servlet>
+    <servlet-name>RemoveHistoryServlet</servlet-name>
+    <servlet-class>com.movierental.RemoveHistoryServlet</servlet-class>
+</servlet>
+
+<servlet-mapping>
+    <servlet-name>RemoveHistoryServlet</servlet-name>
+    <url-pattern>/removeHistory</url-pattern>
+</servlet-mapping>
+
 
 
    <!-- Default welcome file -->

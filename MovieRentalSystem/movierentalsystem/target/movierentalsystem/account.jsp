@@ -102,6 +102,25 @@
     h1, h2, p {
       margin-bottom: 20px;
     }
+
+    .neon-button {
+  background-color: #111;
+  color: #0ff;
+  border: 2px solid #0ff;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 0 5px #0ff, 0 0 10px #0ff, 0 0 20px #0ff;
+  transition: all 0.3s ease;
+}
+
+.neon-button:hover {
+  background-color: #0ff;
+  color: #111;
+  box-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff;
+}
+
   </style>
 </head>
 <body>
@@ -176,7 +195,7 @@
             <td><%= row[2] %></td>
             <td>
                 <form method="post" action="ReturnServlet" style="margin: 0;"
-                    onsubmit="return showConfirmModal(this);">
+                    onsubmit="return showConfirmModal(this,'Are you sure you want to return this movie and submit your rating?');">
                     <input type="hidden" name="movieId" value="<%= row[1] %>" />
                     <input type="hidden" name="customerId" value="<%= customerId %>" />
 
@@ -188,7 +207,7 @@
                                  style="padding: 6px 12px; font-family: 'Orbitron'; background: #f00; color: #fff;
                                   border: none; border-radius: 5px; cursor: pointer;
                                 text-shadow: 0 0 5px #f00, 0 0 10px #f00;">
-                 Return
+                                Return
                      </button>
                 </form>
 
@@ -236,6 +255,12 @@
     </tr>
   <% } %>
 </table>
+<form id="removeHistoryForm" action="removeHistory" method="POST" onsubmit="return showConfirmModal(this, 'Are you sure you want to delete your rental history? This action cannot be undone.');">
+  <input type="hidden" name="customerId" value="<%= request.getAttribute("customerId") %>">
+  <button type="submit" class="neon-button">Remove Rental History</button>
+</form>
+
+
 
 
 <%
@@ -252,8 +277,8 @@
 <div id="confirmModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
      background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center; font-family:'Orbitron', sans-serif;">
   <div style="background:#111; padding:30px; border:2px solid #0ff; border-radius:10px; text-align:center; box-shadow: 0 0 20px #0ff;">
-    <h2 class="neon">Confirm Return</h2>
-    <p style="color:#fff;">Are you sure you want to return this movie and submit your rating?</p>
+    <h2 class="neon">Confirm Action</h2>
+    <p id="confirmText" style="color:#fff;"></p>
     <div style="margin-top: 20px;">
       <button id="confirmYes" style="padding:10px 20px; background:#0ff; border:none; color:#000; font-weight:bold; margin-right:10px; cursor:pointer;">
         Yes
@@ -266,23 +291,28 @@
 </div>
 
 <script>
+
     let pendingForm = null;
-  
-    function showConfirmModal(form) {
+
+    function showConfirmModal(form, message) {
       pendingForm = form;
-      document.getElementById('confirmModal').style.display = 'flex';
-      return false; // Prevent default submit
+      document.getElementById("confirmText").innerText = message;
+      document.getElementById("confirmModal").style.display = "flex";
+      return false;
     }
-  
-    document.getElementById('confirmYes').onclick = function() {
-      if (pendingForm) pendingForm.submit();
-      document.getElementById('confirmModal').style.display = 'none';
-    };
-  
-    document.getElementById('confirmNo').onclick = function() {
-      document.getElementById('confirmModal').style.display = 'none';
-      pendingForm = null;
-    };
+
+    document.addEventListener("DOMContentLoaded", function () {
+      document.getElementById("confirmYes").onclick = function () {
+        if (pendingForm) pendingForm.submit();
+        document.getElementById("confirmModal").style.display = "none";
+      };
+
+      document.getElementById("confirmNo").onclick = function () {
+        document.getElementById("confirmModal").style.display = "none";
+        pendingForm = null;
+      };
+    });
+
   </script>
   
 </body>
