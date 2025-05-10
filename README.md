@@ -1,5 +1,3 @@
-# RetroCinema
-
 Movie Rental System
 A Java-based web application for managing movie rentals, built using Servlets, JSP, and PostgreSQL. The application allows users to browse movies, rent and return them, manage accounts, and view rental history. It is packaged as a WAR file and designed to run on servlet containers like Apache Tomcat.
 
@@ -114,7 +112,7 @@ movierentalsystem/
 │       │           ├── AccountServlet.java
 │       │           ├── CreateAccountServlet.java
 │       │	           ├──Movies.java
-|         |            ├──DatabaseConnection.java
+|       |            ├──DatabaseConnection.java
 │       │            │
 │       │           └── RemoveHistoryServlet.java
 │       └── webapp/
@@ -128,6 +126,7 @@ movierentalsystem/
 └── README.md
 
 
+<img width="386" alt="image" src="https://github.com/user-attachments/assets/c515d350-a535-4ef7-be30-d7d49b168f11" />
 
 
 
@@ -172,4 +171,5 @@ ratings
 movie_id: Primary Key, Foreign Key, NOT NULL
 customer_id: Primary Key, Foreign Key, NOT NULL
 rating: INTEGER
+
 
