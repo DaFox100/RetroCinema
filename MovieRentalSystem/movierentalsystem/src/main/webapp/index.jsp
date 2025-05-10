@@ -230,6 +230,7 @@ function showRentalPrompt() {
   </script>
 </head>
 <body>
+   <!-- Navigation bar with dynamic highlighting for Home link -->
   <nav class="menu-bar neon">
     <a href="movies" class="<%= request.getParameter("query") == null ? "active" : "" %>">Home</a>
     <a href="#movie-library">Movies</a>
@@ -251,7 +252,7 @@ function showRentalPrompt() {
     </div>
   <% } %>
   
-
+  <%-- Get movie list and top-rated movie --%>
   <%
     List<Movie> movies = (List<Movie>) request.getAttribute("movies");
     Movie topMovie = null;
@@ -263,6 +264,7 @@ function showRentalPrompt() {
       topMovie = null;
     }
   %>
+   <!-- Search bar input -->
   <div id="searchBar" style="display: none; text-align: center; margin-top: 20px;">
     <form action="movies" method="get">
       <input type="text" name="query" placeholder="Search by title or genre..."
@@ -276,7 +278,7 @@ function showRentalPrompt() {
       </button>
     </form>
   </div>
-  
+  <!--Banner image-->
   <h2 class="neon" style="text-align: center; margin-top: 40px;">All Movies Rent Free!!!</h2>
   <h3 class="neon" style="text-align: center; margin-top: 40px;">You're Welcome!</h3>
   <div class="image-section">
@@ -287,12 +289,13 @@ function showRentalPrompt() {
          alt="Top Ranked Movie Poster">
   </div>
   <%
+
     if (movies != null && !movies.isEmpty()) {
       List<Movie> sorted = new ArrayList<>(movies);
       sorted.sort((a, b) -> Double.compare(b.getRating(), a.getRating()));
   %>
 
-
+ <!-- Top Rated Movies Table -->
  <h2 class="neon" style="text-align: center; margin-top: 40px;">Top Rated Movies</h2>
   <table class="Top-Ranked-Movies">
     <thead>
@@ -310,7 +313,7 @@ function showRentalPrompt() {
     </tbody>
   </table>
 
-  
+   <!-- Full Movie Table + Poster Preview + Rent Button -->
   <div id="movie-library" style="padding: 40px; display: flex; justify-content: center; gap: 50px;">
   <div style="flex: 1; max-height: 900px; overflow-y: auto;">
     <table class="Top-Ranked-Movies">
@@ -331,10 +334,13 @@ function showRentalPrompt() {
       </tbody>
     </table>
   </div>
+
+  <!-- Movie poster and rent UI -->
   <div style="flex: 0.6; text-align: center;">
   <img id="movie-poster" src="https://placehold.co/300x400?text=Select+Movie" alt="Movie Poster" style="width: 100%; border: 4px solid #f0f; box-shadow: 0 0 20px #f0f;">
   <br><br>
  
+  <!-- Rent Button -->
   <div id="rentButton" style="text-align: center; margin-top: 20px;">
     <button onclick="showRentalPrompt()" 
             style="padding: 12px 30px; font-size: 1.1rem; background: #0ff; border: none; color: #000; cursor: pointer;
@@ -345,6 +351,7 @@ function showRentalPrompt() {
     </button>
   </div>
   
+  <!-- Rental prompt form -->
   <div id="rentalPrompt" style="display: none; text-align: center; margin-top: 30px;">
     <form action="RentServlet" method="POST" style="display: inline-block; background-color: #222; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px #0ff;">
       <input type="hidden" name="movieId" id="selectedMovieId">
@@ -372,7 +379,7 @@ function showRentalPrompt() {
 </div>
 </div>  
 
-
+<!-- Grid of Movie Cards -->
   <h2 class="neon" style="text-align: center; margin-top: 40px;">Movie Library</h2>
   <div class="movie-grid">
     <% for (Movie m : movies) { %>

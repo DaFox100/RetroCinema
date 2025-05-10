@@ -12,15 +12,19 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+// Servlet to handle movie returns and optionally update the customer's rating
 public class ReturnServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+                
+        // Load PostgreSQL JDBC driver
 
         try {
             Class.forName("org.postgresql.Driver");
         } catch (Exception e) {
             System.err.println(e.toString());
         }
+        // Parse request parameters
 
         int movieId = Integer.parseInt(request.getParameter("movieId"));
         int customerId = Integer.parseInt(request.getParameter("customerId"));
@@ -31,6 +35,7 @@ public class ReturnServlet extends HttpServlet {
 
         try (Connection conn = DatabaseConnection.initializeDatabase()) {
             conn.setAutoCommit(false);
+            // Begin transaction
 
             PreparedStatement updateStmt = null;
             PreparedStatement returnStmt = null;
@@ -60,7 +65,7 @@ public class ReturnServlet extends HttpServlet {
             returnStmt.setInt(1, movieId);
             returnStmt.setInt(2, customerId);
             returnStmt.setTimestamp(3, defaultUnreturnedDate);
-            returnStmt.setTimestamp(4, now);  // this is the new returned_date
+            returnStmt.setTimestamp(4, now);  
             returnStmt.executeUpdate();
 
                 
@@ -72,26 +77,29 @@ public class ReturnServlet extends HttpServlet {
                 rs = checkRatingStmt.executeQuery();
 
                 if (rs.next()) {
+                    // If a rating exists, update it
                     updateRatingStmt = conn.prepareStatement("UPDATE ratings SET rating = ? WHERE customer_id = ? AND movie_id = ?");
                     updateRatingStmt.setInt(1, rating);
                     updateRatingStmt.setInt(2, customerId);
                     updateRatingStmt.setInt(3, movieId);
                     updateRatingStmt.executeUpdate();
                 } else {
+                     // Otherwise insert a new rating
                     insertRatingStmt = conn.prepareStatement("INSERT INTO ratings (customer_id, movie_id, rating) VALUES (?, ?, ?)");
                     insertRatingStmt.setInt(1, customerId);
                     insertRatingStmt.setInt(2, movieId);
                     insertRatingStmt.setInt(3, rating);
                     insertRatingStmt.executeUpdate();
                 }
-
+                // Commit transaction on success
                 conn.commit();
                 response.sendRedirect("account?customerId=" + customerId);
 
             } catch (SQLException e) {
-                conn.rollback();
+                conn.rollback();// Rollback transaction on failure
                 throw e;
             } finally {
+                //Clean up all JDBC resources
                 if (rs != null) rs.close();
                 if (updateStmt != null) updateStmt.close();
                 if (returnStmt != null) returnStmt.close();

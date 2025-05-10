@@ -12,22 +12,25 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+// Servlet to handle movie rental operations
 public class RentServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+            // Parse input parameters
             int movieId = Integer.parseInt(request.getParameter("movieId"));
             int customerId = Integer.parseInt(request.getParameter("customerId"));
             Timestamp now = new Timestamp(System.currentTimeMillis());
 
         try (Connection conn = DatabaseConnection.initializeDatabase()) {
 
-            //Check for valid Customer ID
+            //Check that valid Customer ID exists
             String checkCustomerSql = "SELECT 1 FROM customers WHERE customer_id = ?";
             try (PreparedStatement custStmt = conn.prepareStatement(checkCustomerSql)) {
                 custStmt.setInt(1, customerId);
                 try (ResultSet custRs = custStmt.executeQuery()) {
                     if (!custRs.next()) {
+                        // Invalid customer; redirect with error
                         response.sendRedirect("account.jsp?error=invalid_customer");
                         return;
                     }
@@ -48,23 +51,26 @@ public class RentServlet extends HttpServlet {
             int rentedCopies = rs.getInt("copies_rented");
 
             if (rentedCopies >= totalCopies) {
+                // Out of stock; redirect with error
                 response.sendRedirect("index.jsp?error=outofstock");
                
                 
                 return;
             }
         } else {
+            // Movie not found
             response.getWriter().println("Error: Movie not found.");
             return;
         }
 
 
-
+            //Update movie's rented count
             String sql = "UPDATE movies SET copies_rented = copies_rented + 1 WHERE movie_id = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, movieId);
             int rows = stmt.executeUpdate();
 
+            //Step 4: Record the rental transaction
             String insertRental = "INSERT INTO rentals (movie_id, customer_id, rented_date) VALUES (?, ?, ?)";
             PreparedStatement insertStmt = conn.prepareStatement(insertRental); 
             insertStmt.setInt(1, movieId);
@@ -73,7 +79,7 @@ public class RentServlet extends HttpServlet {
             
             insertStmt.executeUpdate();
 
-
+            //Confirm success or failure
             if (rows > 0) {
                 response.sendRedirect("movies");  // Refresh the movie list
             } else {

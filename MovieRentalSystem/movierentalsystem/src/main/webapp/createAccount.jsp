@@ -1,10 +1,13 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %> <%-- Set content type and language for the page --%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <%-- Page metadata and linked font --%>
   <meta charset="UTF-8">
   <title>Create Account</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+
+  <%-- Neon-themed CSS styling for form elements and layout --%>
   <style>
     body {
       margin: 0;
@@ -96,8 +99,11 @@
 </head>
 <body>
 
+  <!-- Container for the account creation form -->
   <div class="container">
     <h1>Create New Account</h1>
+
+    <!-- Form to submit new account data to the CreateAccountServlet -->
     <form action="CreateAccountServlet" method="post">
       <div class="form-group">
         <label for="firstName">First Name</label>
@@ -121,6 +127,8 @@
 
       <button type="submit">Create Account</button>
     </form>
+
+    <!-- Link to return to the home page -->
     <a class="back-link" href="index.jsp">← Back to Home</a>
   </div>
 

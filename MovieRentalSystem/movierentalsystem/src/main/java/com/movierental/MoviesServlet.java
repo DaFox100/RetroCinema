@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+// Servlet to retrieve movie list, supports optional search by title or genre
 public class MoviesServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -21,6 +22,7 @@ public class MoviesServlet extends HttpServlet {
 
     List<Movie> movies = new ArrayList<>();
     
+    // Load JDBC driver
     try {
         Class.forName("org.postgresql.Driver");
     } catch (Exception e) {
@@ -31,6 +33,8 @@ public class MoviesServlet extends HttpServlet {
         String searchQuery = request.getParameter("query");  // Get user input (can be null)
         String sql;
         PreparedStatement stmt;
+
+       // If search query is provided, filter by title or genre (case-insensitive)
 
         if (searchQuery != null && !searchQuery.trim().isEmpty()) {
             sql = "SELECT m.movie_id, m.title, m.genre, m.total_copies, m.copies_rented, m.price, m.url, " +
@@ -44,6 +48,7 @@ public class MoviesServlet extends HttpServlet {
             stmt.setString(2, keyword);
         }
          else {
+            //else fetch all movies sorted by ID
             sql = "SELECT m.movie_id, m.title, m.genre, m.total_copies, m.copies_rented, m.price, m.url, " +
              "COALESCE(AVG(r.rating), 0) AS avg_rating " +
              "FROM movies m LEFT JOIN ratings r ON m.movie_id = r.movie_id " +
@@ -52,6 +57,8 @@ public class MoviesServlet extends HttpServlet {
 
             stmt = conn.prepareStatement(sql);
         }
+
+         // Populate list of Movie objects from result set
 
         ResultSet rs = stmt.executeQuery();
         while (rs.next()) {
@@ -66,7 +73,7 @@ public class MoviesServlet extends HttpServlet {
                 rs.getDouble("avg_rating")
             ));
         }
-
+ // Set movies list as request attribute and forward to JSP
         request.setAttribute("movies", movies);
         RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
         dispatcher.forward(request, response);

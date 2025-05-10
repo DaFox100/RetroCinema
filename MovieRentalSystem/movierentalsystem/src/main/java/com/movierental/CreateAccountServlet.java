@@ -11,10 +11,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+// Servlet to handle account creation by inserting a new customer
 public class CreateAccountServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
 
+            // Retrieve form parameters
             String firstName = request.getParameter("firstName");
             String lastName  = request.getParameter("lastName");
             String email     = request.getParameter("email");
@@ -22,7 +24,7 @@ public class CreateAccountServlet extends HttpServlet {
     
             try (Connection conn = DatabaseConnection.initializeDatabase()) {
     
-                // ✅ Step 1: Get current max customer_id
+                //Get current max customer_id
                 int newCustomerId = 1;
                 String maxSql = "SELECT MAX(customer_id) FROM customers";
     
@@ -34,7 +36,7 @@ public class CreateAccountServlet extends HttpServlet {
                     }
                 }
     
-                // ✅ Step 2: Insert new customer with custom ID
+                //Insert the new customer into the database
                 String insertSql = "INSERT INTO customers (customer_id, first_name, last_name, email, address) VALUES (?, ?, ?, ?, ?)";
     
                 try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
@@ -46,7 +48,7 @@ public class CreateAccountServlet extends HttpServlet {
                     insertStmt.executeUpdate();
                 }
     
-                // ✅ Step 3: Redirect to account.jsp with new ID
+                //Redirect to the new account's page with `new=true` flag
                 response.sendRedirect("account.jsp?customerId=" + newCustomerId + "&new=true");
 
         } catch (SQLException e) {

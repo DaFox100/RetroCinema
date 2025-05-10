@@ -136,29 +136,25 @@
 </head>
 <body>
 
+<!-- Navigation menu -->
 <div class="menu-bar">
   <a href="movies">Home</a>
   <a href="account.jsp" class="active">Account</a>
   <a href="about.jsp" class="active">about</a>
 </div>
 
-
-
-
-
-
+<!-- Main content container -->
 <div class="container">
   <h1 class="neon">Account Lookup</h1>
 
+  <!-- Form to lookup account by customer ID -->
   <form action="account" method="get">
     <label for="customerId">Enter your Customer ID:</label><br/>
     <input type="number" placeholder="EX: 123" name="customerId" id="customerId" required />
-    <button type="submit" style="padding: 12px 30px; font-size: 1.1rem; background: #0ff; border: none; color: #000; cursor: pointer;
-    font-family: 'Orbitron', sans-serif;
-    text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
-    box-shadow: 0 0 10px #0ff, 0 0 20px #f0f; border-radius: 5px;">View My Rentals</button>
+    <button type="submit">View My Rentals</button>
   </form>
 
+  <%-- Show message if customer ID is invalid --%>
   <% if ("invalid_customer".equals(request.getParameter("error"))) { %>
     <div style="background:#111; border:2px solid #f00; color:#fff; padding:15px; margin:20px auto; width:80%; text-align:center; font-family:'Orbitron', sans-serif;">
       <p style="color:#f00; font-weight:bold;">Invalid Customer ID</p>
@@ -166,37 +162,37 @@
     </div>
   <% } %>
 
+  <%-- Show message if account was just created --%>
   <%
     String newCustomer = request.getParameter("new");
     String newCustomerId = request.getParameter("customerId");
     if ("true".equals(newCustomer) && newCustomerId != null) {
-%>
-    <div id="newCustomerMessage" style="background:#111; border:2px solid #0f0; color:#0f0; padding:15px; margin:20px auto; width:80%; text-align:center; font-family:'Orbitron', sans-serif;">
-        <p style="font-weight:bold;">Account Created Successfully!</p>
-        <p>Your Customer ID is: <span style="color:#0ff;"><%= newCustomerId %></span></p>
+  %>
+    <div id="newCustomerMessage">
+        <p>Account Created Successfully!</p>
+        <p>Your Customer ID is: <%= newCustomerId %></p>
         <p>Please use this ID to rent movies in the future.</p>
     </div>
-<%
+  <%
     }
-%>
+  %>
 
-
-<% String error = (String) request.getAttribute("error");
-   if (error != null) { 
-    %>
+  <%-- Show request-scoped error if present --%>
+  <% String error = (String) request.getAttribute("error");
+     if (error != null) { %>
     <p style="color: red;"><%= error %></p>
-    %>
-<% 
-} else {
-   List<String[]> rentals = (List<String[]>) request.getAttribute("rentals");
-   List<String[]> pastRentals = (List<String[]>) request.getAttribute("pastRentals");
-   Integer customerId = (Integer) request.getAttribute("customerId");
-   if (customerId != null) {
-%>
+  <% 
+  } else {
+     List<String[]> rentals = (List<String[]>) request.getAttribute("rentals");
+     List<String[]> pastRentals = (List<String[]>) request.getAttribute("pastRentals");
+     Integer customerId = (Integer) request.getAttribute("customerId");
+
+     // Only show account info if a valid customerId was set
+     if (customerId != null) {
+  %>
+
+    <!-- Display account information -->
     <h1>Welcome, <%= request.getAttribute("firstName") %> <%= request.getAttribute("lastName") %></h1>
-    <br>
-    <br>
-    <h2></h2>
     <h2>Your account information</h2>
     <table>
       <tr>
@@ -213,8 +209,7 @@
       </tr>
     </table>
 
-    <br>
-    <br>
+    <!-- Show current rentals -->
     <h2>Your current rental</h2>
     <table>
         <tr>
@@ -232,137 +227,112 @@
             <td><%= row[1] %></td>
             <td><%= row[2] %></td>
             <td>
-                <form method="post" action="ReturnServlet" style="margin: 0;"
-                    onsubmit="return showConfirmModal(this,'Are you sure you want to return this movie and submit your rating?');">
+                <!-- Return form with rating input -->
+                <form method="post" action="ReturnServlet" onsubmit="return showConfirmModal(this,'Are you sure you want to return this movie and submit your rating?');">
                     <input type="hidden" name="movieId" value="<%= row[1] %>" />
                     <input type="hidden" name="customerId" value="<%= customerId %>" />
-
-                    <label for="rating" style="color:#fff; font-size: 0.9rem;">Rate (0-100):</label>
-                    <input type="number" name="rating" min="0" max="100" required
-                                 style="width: 60px; padding: 5px; margin-right: 10px;" />
-
-                     <button type="submit"
-                                 style="padding: 6px 12px; font-family: 'Orbitron'; background: #f00; color: #fff;
-                                  border: none; border-radius: 5px; cursor: pointer;
-                                text-shadow: 0 0 5px #f00, 0 0 10px #f00;">
-                                Return
-                     </button>
+                    <label for="rating">Rate (0-100):</label>
+                    <input type="number" name="rating" min="0" max="100" required />
+                    <button type="submit">Return</button>
                 </form>
-
               </td>
         </tr>
         <% 
-      } 
-    }
-    else {
-      %>
+          } 
+        } else {
+        %>
         <tr>
           <td colspan="4">No current rentals found.</td>
         </tr>
-      <% }
-      %>
+        <% } %>
     </table>
 
-<br>
-<br>
-<h2>Your rental history</h2>
-<table>
-  <tr>
-    <th>Movie ID</th>
-    <th>Title</th>
-    <th>Rented Date</th>
-    <th>Returned Date</th>
-  </tr>
+    <!-- Show past rentals -->
+    <h2>Your rental history</h2>
+    <table>
+      <tr>
+        <th>Movie ID</th>
+        <th>Title</th>
+        <th>Rented Date</th>
+        <th>Returned Date</th>
+      </tr>
+      <% 
+        if (pastRentals != null && !pastRentals.isEmpty()) {
+          for (String[] row : pastRentals) { 
+      %>
+        <tr>
+          <td><%= row[0] %></td>
+          <td><%= row[1] %></td>
+          <td><%= row[2] %></td>
+          <td><%= row[3] %></td>
+        </tr>
+      <% 
+          }
+        } else {
+      %>
+        <tr>
+          <td colspan="4">No past rentals found.</td>
+        </tr>
+      <% } %>
+    </table>
+
+    <!-- Remove rental history form -->
+    <form id="removeHistoryForm" action="removeHistory" method="POST"
+          onsubmit="return showConfirmModal(this, 'Are you sure you want to delete your rental history? This action cannot be undone.');">
+      <input type="hidden" name="customerId" value="<%= request.getAttribute("customerId") %>">
+      <button type="submit" class="neon-button">Remove Rental History</button>
+    </form>
 
   <% 
-    if (pastRentals != null && !pastRentals.isEmpty()) {
-      for (String[] row : pastRentals) { 
-  %>
-    <tr>
-      <td><%= row[0] %></td>
-      <td><%= row[1] %></td>
-      <td><%= row[2] %></td>
-      <td><%= row[3] %></td>
-    </tr>
-  <% 
-      }
     } else {
   %>
-    <tr>
-      <td colspan="4">No past rentals found.</td>
-    </tr>
-  <% } %>
-</table>
-<form id="removeHistoryForm" action="removeHistory" method="POST"
-      style="margin-top: 30px;"
-      onsubmit="return showConfirmModal(this, 'Are you sure you want to delete your rental history? This action cannot be undone.');">
-  <input type="hidden" name="customerId" value="<%= request.getAttribute("customerId") %>">
-  <button type="submit" class="neon-button">Remove Rental History</button>
-</form>
-
-
-
-
-
-<%
-  }else{
-    %>
     <h2>No customer account is selected.</h2>
-    <%
-  }
-}
-%>
-
+  <% 
+    }
+  } 
+  %>
 </div>
-<!-- Custom Return Confirmation Modal -->
-<div id="confirmModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-     background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center; font-family:'Orbitron', sans-serif;">
-  <div style="background:#111; padding:30px; border:2px solid #0ff; border-radius:10px; text-align:center; box-shadow: 0 0 20px #0ff;">
+
+<!-- Modal confirmation dialog -->
+<div id="confirmModal" style="display:none;">
+  <div>
     <h2 class="neon">Confirm Action</h2>
-    <p id="confirmText" style="color:#fff;"></p>
-    <div style="margin-top: 20px;">
-      <button id="confirmYes" style="padding:10px 20px; background:#0ff; border:none; color:#000; font-weight:bold; margin-right:10px; cursor:pointer;">
-        Yes
-      </button>
-      <button id="confirmNo" style="padding:10px 20px; background:#f00; border:none; color:#fff; font-weight:bold; cursor:pointer;">
-        No
-      </button>
-    </div> 
+    <p id="confirmText"></p>
+    <button id="confirmYes">Yes</button>
+    <button id="confirmNo">No</button>
   </div>
 </div>
 
 <script>
+  // JavaScript for confirmation modal
+  let pendingForm = null;
 
-    let pendingForm = null;
-
-    function showConfirmModal(form, message) {
-      pendingForm = form;
-      document.getElementById("confirmText").innerText = message;
-      document.getElementById("confirmModal").style.display = "flex";
-      return false;
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-      document.getElementById("confirmYes").onclick = function () {
-        if (pendingForm) pendingForm.submit();
-        document.getElementById("confirmModal").style.display = "none";
-      };
-
-      document.getElementById("confirmNo").onclick = function () {
-        document.getElementById("confirmModal").style.display = "none";
-        pendingForm = null;
-      };
-    });
-
-    document.addEventListener("DOMContentLoaded", function () {
-  const msg = document.getElementById("newCustomerMessage");
-  if (msg) {
-    msg.scrollIntoView({ behavior: "smooth", block: "center" });
-    msg.classList.add("glow-flash");
+  function showConfirmModal(form, message) {
+    pendingForm = form;
+    document.getElementById("confirmText").innerText = message;
+    document.getElementById("confirmModal").style.display = "flex";
+    return false;
   }
-});
 
-  </script>
-  
+  document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("confirmYes").onclick = function () {
+      if (pendingForm) pendingForm.submit();
+      document.getElementById("confirmModal").style.display = "none";
+    };
+
+    document.getElementById("confirmNo").onclick = function () {
+      document.getElementById("confirmModal").style.display = "none";
+      pendingForm = null;
+    };
+
+    // Animate scroll and glow for new account message
+    const msg = document.getElementById("newCustomerMessage");
+    if (msg) {
+      msg.scrollIntoView({ behavior: "smooth", block: "center" });
+      msg.classList.add("glow-flash");
+    }
+  });
+</script>
+
 </body>
 </html>
